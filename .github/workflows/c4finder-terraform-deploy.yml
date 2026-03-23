@@ -1,4 +1,4 @@
-name: C4-Finder Terraform Deploy
+name: C4-Finder Terraform Deploy/Destroy
 
 on:
   push:
@@ -7,9 +7,23 @@ on:
     paths:
       - 'terraform/**'
       - '.github/workflows/c4finder-terraform-deploy.yml'
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'Choose terraform operation'
+        required: true
+        default: deploy
+        type: choice
+        options:
+          - deploy
+          - destroy
+
+permissions:
+  contents: read
+  actions: read
 
 jobs:
-  deploy:
+  terraform:
     runs-on: ubuntu-latest
 
     steps:
@@ -78,10 +92,38 @@ jobs:
         run: terraform -chdir="$TF_WORKING_DIR" init
 
       - name: Terraform Validate
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.operation == 'deploy'
         run: terraform -chdir="$TF_WORKING_DIR" validate
 
       - name: Terraform Plan
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.operation == 'deploy'
         run: terraform -chdir="$TF_WORKING_DIR" plan -out=tfplan
 
       - name: Terraform Apply
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.operation == 'deploy'
         run: terraform -chdir="$TF_WORKING_DIR" apply -auto-approve tfplan
+
+      - name: Upload Terraform state artifact
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.operation == 'deploy'
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-state-${{ github.ref_name }}
+          path: |
+            ${{ env.TF_WORKING_DIR }}/terraform.tfstate
+            ${{ env.TF_WORKING_DIR }}/terraform.tfstate.backup
+          if-no-files-found: warn
+
+      - name: Download last Terraform state artifact
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'destroy'
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: c4finder-terraform-deploy.yml
+          branch: ${{ github.ref_name }}
+          name: terraform-state-${{ github.ref_name }}
+          path: ${{ env.TF_WORKING_DIR }}
+          if_no_artifact_found: fail
+
+      - name: Terraform Destroy
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'destroy'
+        run: terraform -chdir="$TF_WORKING_DIR" destroy -auto-approve
