@@ -152,7 +152,7 @@ resource "aws_security_group" "endpoint" {
 
 # IAM 역할 생성
 resource "aws_iam_role" "ec2" {
-  name               = "${var.name_prefix}-ec2-role-1b3ac6"
+  name               = "${var.name_prefix}-ec2-role-e93dea"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
 
   tags = var.tags
@@ -164,7 +164,7 @@ resource "aws_iam_role_policy_attachment" "ssm" {
 }
 
 resource "aws_iam_instance_profile" "this" {
-  name = "${var.name_prefix}-instance-profile-1b3ac6"
+  name = "${var.name_prefix}-instance-profile-e93dea"
   role = aws_iam_role.ec2.name
 }
 
@@ -181,12 +181,12 @@ resource "aws_kms_key" "this" {
 }
 
 resource "aws_kms_alias" "this" {
-  name          = "alias/${var.name_prefix}-1b3ac6"
+  name          = "alias/${var.name_prefix}-e93dea"
   target_key_id = aws_kms_key.this.key_id
 }
 
 resource "aws_secretsmanager_secret" "this" {
-  name       = "${var.name_prefix}-app-secret-1b3ac6"
+  name       = "${var.name_prefix}-app-secret-e93dea"
   kms_key_id = aws_kms_key.this.arn
 
   tags = merge(var.tags, {

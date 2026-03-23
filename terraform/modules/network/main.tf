@@ -190,7 +190,7 @@ resource "aws_cloudwatch_log_group" "flow_logs" {
 }
 
 resource "aws_iam_role" "flow_logs" {
-  name               = "${var.name_prefix}-flow-logs-role-1b3ac6"
+  name               = "${var.name_prefix}-flow-logs-role-e93dea"
   assume_role_policy = data.aws_iam_policy_document.flow_logs_assume_role.json
 
   tags = merge(var.tags, {
