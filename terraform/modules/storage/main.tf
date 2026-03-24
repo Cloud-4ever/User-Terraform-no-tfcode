@@ -80,6 +80,22 @@ resource "aws_db_instance" "this" {
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-db"
   })
+
+  enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]
+
+  auto_minor_version_upgrade = true
+
+  monitoring_interval = 60
+
+  monitoring_role_arn = aws_iam_role.this_enhanced_monitoring.arn
+
+  iam_database_authentication_enabled = true
+
+  deletion_protection = true
+
+  multi_az = true
+
+  copy_tags_to_snapshot = true
 }
 
 resource "aws_dynamodb_table" "reviews" {
@@ -100,4 +116,8 @@ resource "aws_dynamodb_table" "reviews" {
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-reviews"
   })
+
+  point_in_time_recovery {
+    enabled = true
+  }
 }

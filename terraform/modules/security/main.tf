@@ -61,6 +61,8 @@ resource "aws_security_group" "alb" {
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+
+    description = "Managed ingress for alb"
   }
 
   egress {
@@ -68,6 +70,8 @@ resource "aws_security_group" "alb" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+
+    description = "Managed egress for alb"
   }
 
   tags = merge(var.tags, {
@@ -86,6 +90,8 @@ resource "aws_security_group" "app" {
     to_port         = var.app_port
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
+
+    description = "Managed ingress for app"
   }
 
   egress {
@@ -93,6 +99,8 @@ resource "aws_security_group" "app" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+
+    description = "Managed egress for app"
   }
 
   tags = merge(var.tags, {
@@ -111,6 +119,8 @@ resource "aws_security_group" "db" {
     to_port         = 3306
     protocol        = "tcp"
     security_groups = [aws_security_group.app.id]
+
+    description = "Managed ingress for db"
   }
 
   egress {
@@ -118,6 +128,8 @@ resource "aws_security_group" "db" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+
+    description = "Managed egress for db"
   }
 
   tags = merge(var.tags, {
@@ -136,6 +148,8 @@ resource "aws_security_group" "endpoint" {
     to_port         = 443
     protocol        = "tcp"
     security_groups = [aws_security_group.app.id]
+
+    description = "Managed ingress for endpoint"
   }
 
   egress {
@@ -143,6 +157,8 @@ resource "aws_security_group" "endpoint" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+
+    description = "Managed egress for endpoint"
   }
 
   tags = merge(var.tags, {
