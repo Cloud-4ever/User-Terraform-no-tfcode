@@ -61,8 +61,6 @@ resource "aws_security_group" "alb" {
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-
-    description = "Managed ingress for alb"
   }
 
   egress {
@@ -70,8 +68,6 @@ resource "aws_security_group" "alb" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-
-    description = "Managed egress for alb"
   }
 
   tags = merge(var.tags, {
@@ -90,8 +86,6 @@ resource "aws_security_group" "app" {
     to_port         = var.app_port
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
-
-    description = "Managed ingress for app"
   }
 
   egress {
@@ -99,8 +93,6 @@ resource "aws_security_group" "app" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-
-    description = "Managed egress for app"
   }
 
   tags = merge(var.tags, {
@@ -119,8 +111,6 @@ resource "aws_security_group" "db" {
     to_port         = 3306
     protocol        = "tcp"
     security_groups = [aws_security_group.app.id]
-
-    description = "Managed ingress for db"
   }
 
   egress {
@@ -128,8 +118,6 @@ resource "aws_security_group" "db" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-
-    description = "Managed egress for db"
   }
 
   tags = merge(var.tags, {
@@ -148,8 +136,6 @@ resource "aws_security_group" "endpoint" {
     to_port         = 443
     protocol        = "tcp"
     security_groups = [aws_security_group.app.id]
-
-    description = "Managed ingress for endpoint"
   }
 
   egress {
@@ -157,8 +143,6 @@ resource "aws_security_group" "endpoint" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-
-    description = "Managed egress for endpoint"
   }
 
   tags = merge(var.tags, {
@@ -168,7 +152,7 @@ resource "aws_security_group" "endpoint" {
 
 # IAM 역할 생성
 resource "aws_iam_role" "ec2" {
-  name               = "${var.name_prefix}-ec2-role-e93dea"
+  name               = "${var.name_prefix}-ec2-role"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume_role.json
 
   tags = var.tags
@@ -180,7 +164,7 @@ resource "aws_iam_role_policy_attachment" "ssm" {
 }
 
 resource "aws_iam_instance_profile" "this" {
-  name = "${var.name_prefix}-instance-profile-e93dea"
+  name = "${var.name_prefix}-instance-profile"
   role = aws_iam_role.ec2.name
 }
 
@@ -197,12 +181,12 @@ resource "aws_kms_key" "this" {
 }
 
 resource "aws_kms_alias" "this" {
-  name          = "alias/${var.name_prefix}-e93dea"
+  name          = "alias/${var.name_prefix}"
   target_key_id = aws_kms_key.this.key_id
 }
 
 resource "aws_secretsmanager_secret" "this" {
-  name       = "${var.name_prefix}-app-secret-e93dea"
+  name       = "${var.name_prefix}-app-secret"
   kms_key_id = aws_kms_key.this.arn
 
   tags = merge(var.tags, {

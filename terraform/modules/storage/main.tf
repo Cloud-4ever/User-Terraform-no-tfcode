@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "static" {
-  bucket = "var.name-prefix-static-assets-e93dea"
+  bucket = "${var.name_prefix}-static-assets"
 
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-static-assets"
@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "static" {
 }
 
 resource "aws_s3_bucket" "logs" {
-  bucket = "var.name-prefix-logs-e93dea"
+  bucket = "${var.name_prefix}-logs"
 
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-logs"
@@ -53,7 +53,7 @@ resource "aws_s3_bucket_public_access_block" "logs" {
 }
 
 resource "aws_db_subnet_group" "this" {
-  name       = "${var.name_prefix}-db-subnet-group-e93dea"
+  name       = "${var.name_prefix}-db-subnet-group"
   subnet_ids = var.subnet_ids
 
   tags = merge(var.tags, {
@@ -62,7 +62,7 @@ resource "aws_db_subnet_group" "this" {
 }
 
 resource "aws_db_instance" "this" {
-  identifier             = "${var.name_prefix}-db-e93dea"
+  identifier             = "${var.name_prefix}-db"
   engine                 = "mysql"
   engine_version         = "8.0"
   instance_class         = var.db_instance_class
@@ -80,26 +80,10 @@ resource "aws_db_instance" "this" {
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-db"
   })
-
-  enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]
-
-  auto_minor_version_upgrade = true
-
-  monitoring_interval = 60
-
-  monitoring_role_arn = aws_iam_role.this_enhanced_monitoring.arn
-
-  iam_database_authentication_enabled = true
-
-  deletion_protection = true
-
-  multi_az = true
-
-  copy_tags_to_snapshot = true
 }
 
 resource "aws_dynamodb_table" "reviews" {
-  name         = "${var.name_prefix}-reviews-e93dea"
+  name         = "${var.name_prefix}-reviews"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "review_id"
 
@@ -116,8 +100,4 @@ resource "aws_dynamodb_table" "reviews" {
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-reviews"
   })
-
-  point_in_time_recovery {
-    enabled = true
-  }
 }

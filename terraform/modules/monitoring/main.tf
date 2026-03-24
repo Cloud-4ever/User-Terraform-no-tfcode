@@ -27,7 +27,7 @@ resource "aws_config_configuration_recorder" "this" {
 }
 
 resource "aws_iam_role" "config" {
-  name = "${var.name_prefix}-config-role-e93dea"
+  name = "${var.name_prefix}-config-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

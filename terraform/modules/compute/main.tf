@@ -44,8 +44,6 @@ resource "aws_lb_listener" "http" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.this.arn
   }
-
-  ssl_policy = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 }
 
 # Launch Template - 새로운 EC2가 생성될 떄 사용할 설계도 
